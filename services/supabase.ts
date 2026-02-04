@@ -1,18 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 import { Habit, UserStats } from '../types';
 
+// Credenciales fijas para este proyecto específico
 const supabaseUrl = 'https://ikyahmaayfxwqvpnaucu.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlreWFobWFheWZ4d3F2cG5hdWN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzM1NjksImV4cCI6MjA4NTgwOTU2OX0.UzOxtW6uN-XSgu0MLhOns_ontWzfvOT9KULzIdt8hhk';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error("ERROR: Credenciales de Supabase no encontradas.");
-}
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
-
-export const supabase = isSupabaseConfigured 
-  ? createClient(supabaseUrl, supabaseAnonKey) 
-  : null;
+export const isSupabaseConfigured = true;
 
 const mapProfileFromDB = (data: any): UserStats => ({
   xp: Number(data.xp) || 0,
@@ -52,7 +47,6 @@ const mapHabitToDB = (habit: Habit, userId: string) => ({
 
 export const db = {
   async getProfile(userId: string) {
-    if (!supabase) return null;
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -66,7 +60,6 @@ export const db = {
   },
 
   async updateProfile(userId: string, stats: UserStats) {
-    if (!supabase) return;
     const { error } = await supabase
       .from('profiles')
       .upsert({ id: userId, ...mapProfileToDB(stats) });
@@ -74,7 +67,6 @@ export const db = {
   },
 
   async getHabits(userId: string) {
-    if (!supabase) return [];
     const { data, error } = await supabase
       .from('habits')
       .select('*')
@@ -87,7 +79,6 @@ export const db = {
   },
 
   async saveHabit(userId: string, habit: Habit) {
-    if (!supabase) return;
     const { error } = await supabase
       .from('habits')
       .upsert(mapHabitToDB(habit, userId));
@@ -95,7 +86,6 @@ export const db = {
   },
 
   async deleteHabit(habitId: string) {
-    if (!supabase) return;
     const { error } = await supabase
       .from('habits')
       .delete()

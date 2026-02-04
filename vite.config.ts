@@ -4,8 +4,14 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   define: {
-    // Definimos solo las variables necesarias para evitar inyectar objetos pesados o inexistentes
-    'process.env.API_KEY': JSON.stringify(process.env.API_KEY || '')
+    // Definimos el objeto process para que no falle en el navegador
+    'process.env': {
+      API_KEY: JSON.stringify(process.env.API_KEY || '')
+    }
+  },
+  server: {
+    port: 3000,
+    host: true
   },
   build: {
     outDir: 'dist',
