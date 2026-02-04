@@ -1,10 +1,12 @@
-
 import { createClient } from '@supabase/supabase-js';
 import { Habit, UserStats } from '../types';
 
-// Credenciales directas del proyecto del usuario
 const supabaseUrl = 'https://ikyahmaayfxwqvpnaucu.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlreWFobWFheWZ4d3F2cG5hdWN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzM1NjksImV4cCI6MjA4NTgwOTU2OX0.UzOxtW6uN-XSgu0MLhOns_ontWzfvOT9KULzIdt8hhk';
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error("ERROR: Credenciales de Supabase no encontradas.");
+}
 
 export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
 
@@ -12,7 +14,6 @@ export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseAnonKey) 
   : null;
 
-// Mapeadores para convertir entre formatos de DB (snake_case) y App (camelCase)
 const mapProfileFromDB = (data: any): UserStats => ({
   xp: Number(data.xp) || 0,
   level: Number(data.level) || 1,
@@ -57,7 +58,10 @@ export const db = {
       .select('*')
       .eq('id', userId)
       .single();
-    if (error && error.code !== 'PGRST116') throw error;
+    if (error && error.code !== 'PGRST116') {
+      console.error("Error cargando perfil:", error);
+      return null;
+    }
     return data ? mapProfileFromDB(data) : null;
   },
 
@@ -75,7 +79,10 @@ export const db = {
       .from('habits')
       .select('*')
       .eq('user_id', userId);
-    if (error) throw error;
+    if (error) {
+      console.error("Error cargando hábitos:", error);
+      return [];
+    }
     return (data || []).map(mapHabitFromDB);
   },
 
