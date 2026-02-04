@@ -1,10 +1,10 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
+// Fix: Initializing GoogleGenAI within each function call to ensure it uses the current API_KEY and follows recommended SDK usage patterns
 export const getAIInsight = async (userStats: any, habits: any) => {
   try {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `Contexto: Una aplicación de seguimiento de hábitos de alto rendimiento llamada TITAN. 
@@ -24,7 +24,7 @@ export const getAIInsight = async (userStats: any, habits: any) => {
         topP: 0.95,
       }
     });
-    return response.text;
+    return response.text || "La disciplina es el único camino. Ejecuta tu misión sin excusas.";
   } catch (error) {
     console.error("Error de Gemini:", error);
     return "La disciplina es el único camino. Ejecuta tu misión sin excusas.";
@@ -33,14 +33,16 @@ export const getAIInsight = async (userStats: any, habits: any) => {
 
 export const getWeeklyReview = async (history: any) => {
   try {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `Analiza este historial semanal de hábitos: ${JSON.stringify(history)}. 
       Proporciona un reporte de daños y mejoras en 3 puntos breves. 
       Tono: Instructor de élite. Sé duro pero estratégico. Responde en español.`,
     });
-    return response.text;
+    return response.text || "La consistencia es tu único objetivo. Elimina las excusas.";
   } catch (error) {
+    console.error("Error de Gemini Weekly Review:", error);
     return "La consistencia es tu único objetivo. Elimina las excusas.";
   }
 };
