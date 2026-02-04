@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   Flame
 } from 'lucide-react';
+import { Habit } from './types';
 
 export const RANKS = [
   { minXp: 0, title: 'Recluta' },
@@ -29,7 +30,8 @@ export const CATEGORY_ICONS = {
   discipline: <ShieldCheck className="w-4 h-4 text-green-500" />
 };
 
-export const INITIAL_HABITS = [
+// Fix: Explicitly type INITIAL_HABITS as Habit[] to avoid string widening for the category field
+export const INITIAL_HABITS: Habit[] = [
   { id: '1', name: 'Ducha Fría', category: 'discipline', frequency: 'daily', completedDays: [], streak: 0 },
   { id: '2', name: 'Trabajo Profundo', category: 'work', frequency: 'daily', completedDays: [], streak: 0 },
   { id: '3', name: 'Entrenamiento de Pesas', category: 'fitness', frequency: 'daily', completedDays: [], streak: 0 },
