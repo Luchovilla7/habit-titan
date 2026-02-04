@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { UserStats, Habit } from '../types';
-import { User, Trophy, Clock, Shield, Star, Crown, Settings, Power, Wifi } from 'lucide-react';
+import { supabase } from '../services/supabase';
+import { User, Trophy, Clock, Shield, Star, Crown, Settings, Power, LogOut } from 'lucide-react';
 
 interface ProfileProps {
   stats: UserStats;
@@ -15,6 +16,12 @@ const Profile: React.FC<ProfileProps> = ({ stats, habits }) => {
     { title: 'Voluntad de Hierro', desc: 'Racha de 7 días', unlocked: habits.some(h => h.streak >= 7), icon: <Shield /> },
     { title: 'Titán de Élite', desc: 'Alcanzó el Nivel 10', unlocked: stats.level >= 10, icon: <Crown /> },
   ];
+
+  const handleLogout = async () => {
+    if (confirm("¿Desconectar terminal TITAN?")) {
+      await supabase?.auth.signOut();
+    }
+  };
 
   return (
     <div className="p-6 space-y-8 pb-10 animate-in fade-in duration-500">
@@ -34,7 +41,7 @@ const Profile: React.FC<ProfileProps> = ({ stats, habits }) => {
           <div className="flex items-center justify-center gap-2 mt-2">
              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-zinc-900 rounded border border-zinc-800">
                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-               <span className="text-zinc-500 font-mono text-[8px] uppercase tracking-[0.2em]">Sistema Operativo</span>
+               <span className="text-zinc-500 font-mono text-[8px] uppercase tracking-[0.2em]">Operador Activo</span>
              </div>
           </div>
         </div>
@@ -82,18 +89,28 @@ const Profile: React.FC<ProfileProps> = ({ stats, habits }) => {
         <div className="p-4 bg-zinc-900/30 border border-zinc-800 rounded-xl">
            <div className="flex items-center justify-between mb-3">
               <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-                <Settings size={12} /> Configuración Core
+                <Settings size={12} /> Gestión de Acceso
               </span>
            </div>
-           <button 
-             onClick={() => { if(confirm("¿Deseas purgar todos los datos locales?")) { localStorage.clear(); window.location.reload(); } }}
-             className="w-full py-3 bg-red-950/20 text-red-500 text-[9px] font-black uppercase tracking-widest border border-red-900/30 rounded-lg hover:bg-red-900/40 transition-all flex items-center justify-center gap-2"
-           >
-             <Power size={12} /> Reiniciar Parámetros
-           </button>
+           
+           <div className="grid grid-cols-1 gap-2">
+             <button 
+               onClick={handleLogout}
+               className="w-full py-3 bg-zinc-800 text-white text-[9px] font-black uppercase tracking-widest border border-zinc-700 rounded-lg hover:bg-zinc-700 transition-all flex items-center justify-center gap-2"
+             >
+               <LogOut size={12} /> Cerrar Sesión
+             </button>
+             
+             <button 
+               onClick={() => { if(confirm("¿Purgar caché local? No afectará a la nube.")) { localStorage.clear(); window.location.reload(); } }}
+               className="w-full py-3 text-zinc-600 text-[8px] font-black uppercase tracking-widest hover:text-red-500 transition-all"
+             >
+               Limpiar Datos Locales
+             </button>
+           </div>
         </div>
         
-        <p className="text-[8px] text-zinc-700 text-center font-bold uppercase tracking-widest">TITAN_V2_PERSONAL_DEPLOYMENT</p>
+        <p className="text-[8px] text-zinc-700 text-center font-bold uppercase tracking-widest">TITAN_SYSTEM_READY_FOR_DEPLOYMENT</p>
       </div>
     </div>
   );

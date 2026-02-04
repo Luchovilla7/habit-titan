@@ -6,12 +6,13 @@ import Dashboard from './components/Dashboard';
 import HabitManager from './components/HabitManager';
 import PomodoroTimer from './components/PomodoroTimer';
 import Profile from './components/Profile';
+import Login from './components/Login';
 import { supabase, db, isSupabaseConfigured } from './services/supabase';
 import { LayoutDashboard, CheckSquare, Timer, User, Loader2, Shield } from 'lucide-react';
 
 const App: React.FC = () => {
   const [session, setSession] = useState<any>(null);
-  const [loading, setLoading] = useState(isSupabaseConfigured);
+  const [loading, setLoading] = useState(true);
   const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
   const isInitialMount = useRef(true);
   
@@ -30,16 +31,23 @@ const App: React.FC = () => {
       return;
     }
 
+    // Obtener sesión inicial
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) loadUserData(session.user.id);
       else setLoading(false);
     });
 
+    // Escuchar cambios de sesión
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (session) loadUserData(session.user.id);
-      else setLoading(false);
+      else {
+        setLoading(false);
+        // Reset local data on logout for privacy if needed
+        // setHabits(INITIAL_HABITS);
+        // setStats({ xp: 0, level: 1, rank: 'Recluta', totalPomodoros: 0, totalFocusMinutes: 0 });
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -140,9 +148,12 @@ const App: React.FC = () => {
     );
   }
 
+  if (!session) {
+    return <Login />;
+  }
+
   return (
     <div className="min-h-screen bg-titan-black text-white font-sans flex flex-col max-w-md mx-auto border-x border-zinc-900 shadow-2xl overflow-hidden">
-      {/* Header Personalizado para Usuario Único */}
       <header className="p-6 pb-2 flex justify-between items-center bg-gradient-to-b from-titan-black to-transparent">
         <div>
           <h1 className="text-3xl font-black italic tracking-tighter text-white">TITAN<span className="text-titan-accent text-sm not-italic align-top ml-1">CORE</span></h1>
@@ -151,17 +162,17 @@ const App: React.FC = () => {
         <div className="flex gap-2">
            <div className="flex items-center gap-2 bg-titan-dark p-2 px-3 rounded-lg border border-zinc-800">
              <Shield size={12} className="text-titan-accent" />
-             <span className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">USER_01</span>
+             <span className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">
+               {session.user.email.split('@')[0].toUpperCase()}
+             </span>
            </div>
         </div>
       </header>
 
-      {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto pb-24 custom-scrollbar">
         {renderView()}
       </main>
 
-      {/* Navigation - Simplificada a 4 items */}
       <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-titan-black/80 backdrop-blur-xl border-t border-zinc-800/50 p-4 pb-6 flex justify-around items-center z-50">
         <NavButton icon={<LayoutDashboard size={20}/>} active={currentView === View.DASHBOARD} onClick={() => setCurrentView(View.DASHBOARD)} label="Misión" />
         <NavButton icon={<CheckSquare size={20}/>} active={currentView === View.HABITS} onClick={() => setCurrentView(View.HABITS)} label="Mazo" />
