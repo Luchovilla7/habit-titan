@@ -1,10 +1,17 @@
-
 import { GoogleGenAI } from "@google/genai";
 
-// Fix: Initializing GoogleGenAI within each function call to ensure it uses the current API_KEY and follows recommended SDK usage patterns
+const getApiKey = () => {
+  return process.env.API_KEY || '';
+};
+
 export const getAIInsight = async (userStats: any, habits: any) => {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    return "La disciplina es el único camino. Ejecuta tu misión sin excusas.";
+  }
+
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `Contexto: Una aplicación de seguimiento de hábitos de alto rendimiento llamada TITAN. 
@@ -32,8 +39,13 @@ export const getAIInsight = async (userStats: any, habits: any) => {
 };
 
 export const getWeeklyReview = async (history: any) => {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    return "La consistencia es tu único objetivo. Elimina las excusas.";
+  }
+
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `Analiza este historial semanal de hábitos: ${JSON.stringify(history)}. 
